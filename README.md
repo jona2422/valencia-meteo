@@ -74,3 +74,13 @@ cuando se desborda un barranco.
 python3 scripts/fetch_meteo.py    # baja datos a data/
 python3 -m http.server 8877       # abrir http://localhost:8877
 ```
+
+## Nota sobre `data/`
+
+El robot commitea `data/` cada 15 minutos, así que en local siempre vas a estar por detrás.
+Antes de tocar código: `git pull --rebase`. Si hay conflicto, es solo en `data/*.json` y se
+resuelve quedándose con la versión remota:
+
+```sh
+git checkout origin/main -- data/ && git add data && git rebase --continue
+```
