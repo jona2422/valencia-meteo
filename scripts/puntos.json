@@ -1,0 +1,33 @@
+{
+  "_nota": "Puntos de vigilancia. Prioridad alta = zonas golpeadas por la DANA del 29-oct-2024 o cabeceras de barranco que las alimentan.",
+  "puntos": [
+    {"id":"valencia","nombre":"València","lat":39.4699,"lon":-0.3763,"comarca":"Ciutat de València","cuenca":"Túria","prio":1},
+    {"id":"paiporta","nombre":"Paiporta","lat":39.4278,"lon":-0.4181,"comarca":"Horta Sud","cuenca":"Barranc del Poyo","prio":1},
+    {"id":"catarroja","nombre":"Catarroja","lat":39.4025,"lon":-0.4044,"comarca":"Horta Sud","cuenca":"Barranc del Poyo","prio":1},
+    {"id":"alfafar","nombre":"Alfafar","lat":39.4192,"lon":-0.3906,"comarca":"Horta Sud","cuenca":"Barranc del Poyo","prio":1},
+    {"id":"sedavi","nombre":"Sedaví","lat":39.4256,"lon":-0.3894,"comarca":"Horta Sud","cuenca":"Barranc del Poyo","prio":1},
+    {"id":"massanassa","nombre":"Massanassa","lat":39.4111,"lon":-0.3983,"comarca":"Horta Sud","cuenca":"Barranc del Poyo","prio":1},
+    {"id":"torrent","nombre":"Torrent","lat":39.4367,"lon":-0.4656,"comarca":"Horta Oest","cuenca":"Barranc del Poyo","prio":1},
+    {"id":"picanya","nombre":"Picanya","lat":39.4392,"lon":-0.4394,"comarca":"Horta Oest","cuenca":"Barranc del Poyo","prio":1},
+    {"id":"aldaia","nombre":"Aldaia","lat":39.4622,"lon":-0.4633,"comarca":"Horta Oest","cuenca":"Barranc de la Saleta","prio":1},
+    {"id":"chiva","nombre":"Chiva","lat":39.4708,"lon":-0.7181,"comarca":"Foia de Bunyol","cuenca":"Barranc del Poyo (cabecera)","prio":1},
+    {"id":"cheste","nombre":"Cheste","lat":39.4931,"lon":-0.6844,"comarca":"Foia de Bunyol","cuenca":"Barranc del Poyo (cabecera)","prio":1},
+    {"id":"buñol","nombre":"Buñol","lat":39.4197,"lon":-0.7900,"comarca":"Foia de Bunyol","cuenca":"Riu Bunyol","prio":2},
+    {"id":"utiel","nombre":"Utiel","lat":39.5669,"lon":-1.2036,"comarca":"Utiel-Requena","cuenca":"Riu Magro (cabecera)","prio":1},
+    {"id":"requena","nombre":"Requena","lat":39.4883,"lon":-1.1003,"comarca":"Utiel-Requena","cuenca":"Riu Magro","prio":1},
+    {"id":"algemesi","nombre":"Algemesí","lat":39.1906,"lon":-0.4364,"comarca":"Ribera Alta","cuenca":"Xúquer / Magro","prio":1},
+    {"id":"alzira","nombre":"Alzira","lat":39.1508,"lon":-0.4358,"comarca":"Ribera Alta","cuenca":"Xúquer","prio":1},
+    {"id":"carlet","nombre":"Carlet","lat":39.2242,"lon":-0.5194,"comarca":"Ribera Alta","cuenca":"Riu Magro","prio":2},
+    {"id":"sueca","nombre":"Sueca","lat":39.2019,"lon":-0.3106,"comarca":"Ribera Baixa","cuenca":"Xúquer / Albufera","prio":2},
+    {"id":"cullera","nombre":"Cullera","lat":39.1642,"lon":-0.2519,"comarca":"Ribera Baixa","cuenca":"Desembocadura Xúquer","prio":2},
+    {"id":"xativa","nombre":"Xàtiva","lat":38.9861,"lon":-0.5194,"comarca":"Costera","cuenca":"Riu dels Sants","prio":2},
+    {"id":"gandia","nombre":"Gandia","lat":38.9675,"lon":-0.1817,"comarca":"Safor","cuenca":"Riu Serpis","prio":2},
+    {"id":"ontinyent","nombre":"Ontinyent","lat":38.8214,"lon":-0.6067,"comarca":"Vall d'Albaida","cuenca":"Riu Clariano","prio":2},
+    {"id":"sagunt","nombre":"Sagunt","lat":39.6797,"lon":-0.2769,"comarca":"Camp de Morvedre","cuenca":"Riu Palància","prio":2},
+    {"id":"llíria","nombre":"Llíria","lat":39.6264,"lon":-0.5961,"comarca":"Camp de Túria","cuenca":"Riu Túria","prio":2},
+    {"id":"castello","nombre":"Castelló de la Plana","lat":39.9864,"lon":-0.0513,"comarca":"Plana Alta","cuenca":"Riu Millars","prio":3},
+    {"id":"alacant","nombre":"Alacant","lat":38.3452,"lon":-0.4810,"comarca":"Alacantí","cuenca":"Barrancs litorals","prio":3},
+    {"id":"denia","nombre":"Dénia","lat":38.8408,"lon":0.1057,"comarca":"Marina Alta","cuenca":"Riu Girona","prio":3},
+    {"id":"orihuela","nombre":"Orihuela","lat":38.0850,"lon":-0.9450,"comarca":"Vega Baja","cuenca":"Riu Segura","prio":3}
+  ]
+}

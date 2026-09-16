@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIGILÀNCIA — Lluvia e inundación en la Comunitat Valenciana</title>
+<meta name="description" content="Vigilancia en tiempo real de lluvia, tormentas e inundación en Valencia, Castellón y Alicante: avisos de AEMET, acumulados, caudales y prensa.">
+<meta name="theme-color" content="#080a0e">
+<link rel="icon" href="assets/icon.svg">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-view="ahora">
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">VIGIL<b>ÀNCIA</b><span>Comunitat Valenciana · pluges i inundació</span></div>
+    <div class="grow"></div>
+    <div class="pulse"><span class="dot" id="dot"></span><span id="pulse-t">en vivo</span></div>
+    <div class="clock" id="clock"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banda n0" id="banda">
+    <div class="big" id="banda-n">—</div>
+    <div class="txt"><h1 id="banda-h">Cargando situación…</h1><p id="banda-p"></p></div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-go="ahora">Ahora</button>
+    <button class="tab" data-go="avisos">Avisos AEMET <span class="n" id="n-avisos">0</span></button>
+    <button class="tab" data-go="zonas">Zonas <span class="n" id="n-zonas">0</span></button>
+    <button class="tab" data-go="rios">Ríos</button>
+    <button class="tab" data-go="modelos">Modelos</button>
+    <button class="tab" data-go="noticias">Noticias <span class="n" id="n-noticias">0</span></button>
+  </nav>
+
+  <section id="v-ahora">
+    <div class="kpis" id="kpis"></div>
+    <div class="cols">
+      <div>
+        <div class="panel">
+          <h3>Mapa de situación <em id="map-sub"></em></h3>
+          <div class="mapbox" id="mapa"></div>
+          <div class="leyenda">
+            <span><i style="background:var(--n0)"></i>sin aviso</span>
+            <span><i style="background:var(--n1)"></i>amarillo</span>
+            <span><i style="background:var(--n2)"></i>naranja</span>
+            <span><i style="background:var(--n3)"></i>rojo</span>
+            <span style="margin-left:auto">tamaño = lluvia acumulada 12 h</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Zonas más expuestas <em>acumulado y previsión</em></h3>
+          <div id="tabla-top"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h3>Avisos activos <em id="av-sub"></em></h3>
+          <div id="avisos-top"></div>
+        </div>
+        <div class="panel">
+          <h3>Ingredientes de la atmósfera</h3>
+          <div id="ingredientes"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-avisos" class="hide">
+    <div class="panel"><h3>Avisos oficiales de AEMET <em>vía MeteoAlarm, formato CAP</em></h3>
+      <div id="avisos-todos"></div>
+      <div class="nota">Los avisos los emite <b>AEMET</b> por zona. <b>Amarillo</b>: riesgo para
+        actividades concretas. <b>Naranja</b>: riesgo importante, fenómenos no habituales.
+        <b>Rojo</b>: riesgo extremo, fenómenos de intensidad excepcional. Un aviso cubre una
+        zona entera, así que dentro de ella el impacto puede ser muy desigual.</div>
+    </div>
+  </section>
+
+  <section id="v-zonas" class="hide">
+    <div class="panel"><h3>Los 28 puntos de vigilancia <em>ordenados por riesgo</em></h3>
+      <div id="tabla-todo"></div>
+      <div class="nota">Umbrales aplicados: <b>amarillo</b> 15 mm/h o 40 mm en 12 h ·
+        <b>naranja</b> 30 mm/h o 80 mm en 12 h · <b>rojo</b> 60 mm/h o 120 mm en 12 h.
+        Son los que usa AEMET en el litoral mediterráneo. Los puntos se eligieron por cuenca:
+        incluyen las cabeceras de barranco que alimentan l'Horta Sud.</div>
+    </div>
+  </section>
+
+  <section id="v-rios" class="hide">
+    <div class="panel"><h3>Caudal de los ríos <em>modelo GloFAS / Copernicus</em></h3>
+      <div id="rios"></div>
+      <div class="nota">Caudal en m³/s previsto por <b>GloFAS</b>. El factor compara el pico
+        previsto con el caudal habitual de estos días: un <b>×3 o más</b> indica crecida
+        relevante. Es un modelo global de malla amplia — <b>no sustituye a los aforos del
+        SAIH del Júcar</b>, que miden en tiempo real y son la referencia oficial.</div>
+    </div>
+  </section>
+
+  <section id="v-modelos" class="hide">
+    <div class="panel"><h3>Qué dice cada modelo <em>lluvia acumulada en 48 h sobre València</em></h3>
+      <div id="modelos"></div>
+    </div>
+  </section>
+
+  <section id="v-noticias" class="hide">
+    <div class="cols">
+      <div>
+        <div class="panel"><h3>Prensa valenciana <em>filtrada por lluvia, temporal e inundación</em></h3>
+          <div class="news" id="news"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel"><h3>Seguimiento en X</h3>
+          <div class="xs" id="xs"></div>
+          <div class="nota">X no ofrece acceso gratuito a su API, así que estos enlaces
+            <b>abren X directamente</b> con la búsqueda o la cuenta ya preparada. Las cuentas
+            oficiales son la referencia en una emergencia; lo demás, contrástalo.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot" id="foot"></footer>
+</main>
+
+<script src="assets/js/mapa.js"></script>
+<script src="assets/js/render.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

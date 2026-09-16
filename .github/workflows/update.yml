@@ -1,0 +1,51 @@
+name: Vigilancia
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"      # cada 15 minutos
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: vigilancia
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bajar datos meteorologicos
+        id: meteo
+        run: python3 scripts/fetch_meteo.py
+
+      - name: Commit si hay cambios
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --staged --quiet; then
+            echo "Sin cambios."
+          else
+            git commit -m "datos: nivel ${{ steps.meteo.outputs.nivel }} · $(date -u +%FT%TZ)"
+            git push
+          fi
+
+      - name: Avisar si se caen las fuentes
+        if: steps.meteo.outputs.alerta == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SALUD: ${{ steps.meteo.outputs.salud }}
+        run: |
+          gh issue create \
+            --title "VIGILANCIA: fuentes caidas ($(date -u +%F))" \
+            --body "@jona2422 la vigilancia bajo a **$SALUD** fuentes. Revisa el campo \`salud\` en \`data/meta.json\`." \
+            || echo "No se pudo abrir el issue."
