@@ -113,21 +113,21 @@ const R = (() => {
 
     rios(el, items) {
       if (!items.length) { el.innerHTML = '<div class="empty">Sin datos de caudal.</div>'; return; }
-      const orden = [...items].sort((a, b) => (b.factor || 0) - (a.factor || 0));
+      const orden = [...items].sort((a, b) =>
+        (b.nivel - a.nivel) || ((b.pico || 0) - (a.pico || 0)));
       el.innerHTML = `<table class="tabla">
         <thead><tr><th>Río · punto</th><th class="num">Caudal hoy</th>
-          <th class="num">Pico 7 días</th><th class="num">Factor</th><th>Tendencia</th></tr></thead>
-        <tbody>${orden.map(r => {
-          const f = r.factor || 0;
-          const n = f >= 5 ? 3 : f >= 3 ? 2 : f >= 1.8 ? 1 : 0;
-          return `<tr>
-            <td class="nom">${esc(r.nombre)}</td>
+          <th class="num">Pico 7 días</th><th class="num">Crecida</th><th>Tendencia</th></tr></thead>
+        <tbody>${orden.map(r => `<tr>
+            <td class="nom">${esc(r.nombre)}${r.significativo ? ''
+              : '<span class="sub">caudal muy bajo</span>'}</td>
             <td class="num">${n1(r.actual)}<span class="sub">m³/s</span></td>
             <td class="num">${n1(r.pico)}<span class="sub">m³/s</span></td>
-            <td class="num"><span class="pill n${n}">×${n1(f)}</span></td>
+            <td class="num">${r.significativo
+              ? `<span class="pill n${r.nivel}">×${n1(r.factor)}</span>`
+              : '<span class="sub" style="text-align:right;display:block">sin relevancia</span>'}</td>
             <td style="width:150px">${this.sparkline(r.caudal, 'var(--rio)', 140, 30)}</td>
-          </tr>`;
-        }).join('')}</tbody></table>`;
+          </tr>`).join('')}</tbody></table>`;
     },
 
     sparkline(vals, color, w = 140, h = 30) {

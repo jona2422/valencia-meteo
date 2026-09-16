@@ -306,6 +306,10 @@ def observacion(puntos, por_zona=None):
 # 3. Caudal de rio (GloFAS). El percentil de retorno dice si el caudal previsto
 #    es normal o excepcional para ese punto.
 
+# Por debajo de este caudal (m3/s) el cociente contra el caudal habitual no es
+# informativo: son arroyos practicamente secos.
+CAUDAL_MINIMO = 5.0
+
 RIOS = [
     ("Túria · València", 39.4699, -0.3763), ("Xúquer · Alzira", 39.1508, -0.4358),
     ("Magro · Carlet", 39.2242, -0.5194), ("Serpis · Gandia", 38.9675, -0.1817),
@@ -330,13 +334,30 @@ def caudales():
             continue
         base = sorted(q)[len(q) // 2]
         pico = max(q)
+        factor = round(pico / base, 2) if base else None
+        # Un rio que pasa de 0.05 a 0.4 m3/s da un factor x8 que no significa nada:
+        # con caudales minimos el cociente se dispara por ruido numerico. Para que
+        # cuente como crecida hace falta ademas un caudal absoluto apreciable.
+        significativo = pico >= CAUDAL_MINIMO
+        if not significativo:
+            nivel = 0
+        elif factor and factor >= 5:
+            nivel = 3
+        elif factor and factor >= 3:
+            nivel = 2
+        elif factor and factor >= 1.8:
+            nivel = 1
+        else:
+            nivel = 0
         salida.append({
             "nombre": nombre, "lat": la, "lon": lo,
             "fechas": dia.get("time", []),
             "caudal": [None if v is None else round(v, 2) for v in dia.get("river_discharge", [])],
             "actual": round(q[0], 2), "pico": round(pico, 2),
             # Cuanto se sale el pico de lo habitual de estos dias.
-            "factor": round(pico / base, 2) if base else None,
+            "factor": factor,
+            "significativo": significativo,
+            "nivel": nivel,
         })
     return salida
 
@@ -556,6 +577,7 @@ def main():
 
     try:
         rios = caudales()
+        rios.sort(key=lambda r: (-r["nivel"], -(r["pico"] or 0)))
         anota("caudales GloFAS", True)
     except Exception as e:
         rios = []
