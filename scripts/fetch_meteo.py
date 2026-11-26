@@ -497,6 +497,32 @@ def parse_feed(raw):
     return fuente, items
 
 
+def gdacs(raw):
+    """API JSON de GDACS (el RSS quedo detras de un anti-bot F5).
+
+    Marca `espana` en las inundaciones/ciclones/tormentas que afectan a Espana:
+    esas son las que importan aqui; el resto solo va a la lista general.
+    """
+    items = []
+    for f in json.loads(raw).get("features", []):
+        p = f.get("properties", {})
+        url = p.get("url") or {}
+        link = url.get("report") if isinstance(url, dict) else ""
+        nombre = (p.get("name") or "").replace(", ,", ",").strip()
+        if not (nombre and link):
+            continue
+        nivel = p.get("alertlevel") or ""
+        items.append({
+            "title": ("GDACS %s: %s" % (nivel, nombre)) if nivel else nombre,
+            "link": link, "image": "",
+            "dt": parse_date((p.get("datemodified") or "")[:19] + "Z"),
+            "espana": p.get("eventtype") in ("FL", "TC", "WF")
+                      and "spain" in (p.get("country") or "").lower(),
+        })
+    items.sort(key=lambda x: x["dt"] or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+    return items[:25]
+
+
 # Palabras que marcan una noticia como relevante para esta vigilancia.
 CLAVE = re.compile(
     r"\b(dana|gota fría|gota fria|lluvia|lluvias|tormenta|torment|temporal|inunda|"
@@ -524,7 +550,8 @@ def noticias():
     for url in fuentes:
         host = urllib.parse.urlparse(url).hostname or url
         try:
-            _, items = parse_feed(fetch(url, "application/rss+xml, application/xml, */*"))
+            raw = fetch(url, "application/rss+xml, application/xml, application/json, */*")
+            items = gdacs(raw) if "gdacsapi" in url else parse_feed(raw)[1]
             if not items:
                 raise ValueError("sin items")
             for it in items[:60]:
@@ -535,6 +562,11 @@ def noticias():
                 }
                 todas.append(fila)
                 texto = it["title"]
+                if it.get("espana"):
+                    relevantes.append(fila)
+                    continue
+                if "gdacs" in host:
+                    continue
                 if CLAVE.search(texto) and (VALENCIA.search(texto) or "gdacs" not in host):
                     if host == "www.gdacs.org" and not VALENCIA.search(texto) \
                             and not re.search(r"spain|españa", texto, re.I):
@@ -574,6 +606,16 @@ def main():
     except Exception as e:
         obs = []
         anota("Open-Meteo", False, e)
+    # Si Open-Meteo no responde, mejor la ultima observacion (< 3 h) que un mapa vacio.
+    obs_de = None
+    if not obs:
+        prev = cargar(os.path.join(DATA, "obs.json"), {})
+        try:
+            t = datetime.fromisoformat(prev.get("obs_de") or prev["updated"])
+            if prev.get("items") and ahora - t < timedelta(hours=3):
+                obs, obs_de = prev["items"], t.isoformat()
+        except Exception:
+            pass
 
     try:
         rios = caudales()
@@ -628,6 +670,7 @@ def main():
                          else "lluvia observada y prevista"),
         "sst": estado_mar.get("sst"),
         "dispersion_modelos": mods.get("dispersion"),
+        "obs_de": obs_de,
     }
 
     hist = cargar(os.path.join(DATA, "history.json"), [])
@@ -639,7 +682,7 @@ def main():
 
     guardar("alerts.json", {"updated": ahora.isoformat(), "items": avs, "por_zona": por_zona,
                             "zonas": ZONAS})
-    guardar("obs.json", {"updated": ahora.isoformat(), "items": obs})
+    guardar("obs.json", {"updated": ahora.isoformat(), "items": obs, "obs_de": obs_de})
     guardar("rivers.json", {"updated": ahora.isoformat(), "items": rios})
     guardar("models.json", {"updated": ahora.isoformat(), **mods})
     guardar("sea.json", {"updated": ahora.isoformat(), **estado_mar})

@@ -99,6 +99,21 @@
     if (r.max_prev_24h >= 10) extra.push(`hasta ${R.n1(r.max_prev_24h)} mm previstos en 24 h`);
     $('#banda-p').textContent = texto + (extra.length ? ' — ' + extra.join(' · ') + '.' : '');
 
+    // Aviso de datos viejos: GitHub a veces retrasa horas al robot.
+    const edad = (Date.now() - Date.parse(m.updated)) / 6e4;
+    const viejo = [];
+    if (edad > 45) viejo.push(`Ojo: estos datos son de ${R.desde(m.updated)}. Para la situación al minuto, consulta AEMET y el 112.`);
+    if (r.obs_de) viejo.push(`La lluvia observada es de ${R.desde(r.obs_de)} (Open-Meteo no respondió en la última actualización).`);
+    let aviso = document.getElementById('viejo');
+    if (!aviso) {
+      aviso = document.createElement('p');
+      aviso.id = 'viejo';
+      aviso.style.cssText = 'margin:.5em 0 0;font-weight:600;color:var(--n2, #f0a020)';
+      $('#banda-p').after(aviso);
+    }
+    aviso.textContent = viejo.join(' ');
+    aviso.hidden = !viejo.length;
+
     const av = r.avisos_activos, nv = $('#n-avisos');
     nv.textContent = av;
     nv.className = 'n' + (n >= 3 ? ' crit' : n >= 2 ? ' hot' : '');

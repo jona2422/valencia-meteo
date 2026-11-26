@@ -8,6 +8,6 @@
     "https://api2.rtve.es/rss/temas_valencia.xml",
     "https://www.europapress.es/rss/rss.aspx?ch=00464",
     "https://www.20minutos.es/rss/valencia/",
-    "https://www.gdacs.org/xml/rss.xml"
+    "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?pagesize=50"
   ]
 }
