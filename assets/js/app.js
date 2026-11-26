@@ -20,7 +20,9 @@
   function reloj() {
     $('#clock').textContent = new Intl.DateTimeFormat('es-ES', {
       day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
-      timeZone: 'Europe/Madrid', hour12: false }).format(new Date()) + ' CEST';
+      timeZone: 'Europe/Madrid', hour12: false }).format(new Date()) + ' ' +
+      new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', timeZoneName: 'short' })
+        .formatToParts(new Date()).find(p => p.type === 'timeZoneName').value;
   }
 
   const TEXTO = {

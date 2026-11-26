@@ -21,6 +21,9 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
+MADRID = ZoneInfo("Europe/Madrid")
 from email.utils import parsedate_to_datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -88,6 +91,20 @@ class _Redirect(urllib.request.HTTPRedirectHandler):
 _OPENER = urllib.request.build_opener(_Redirect)
 
 
+def _leer(r, limite):
+    """Lee la respuesta con un tope de tiempo TOTAL (el timeout de urllib es por
+    lectura: un servidor que gotea bytes, como GDACS, puede colgar minutos)."""
+    fin = time.monotonic() + limite
+    partes = []
+    while True:
+        trozo = r.read(65536)
+        if not trozo:
+            return b"".join(partes)
+        partes.append(trozo)
+        if time.monotonic() > fin:
+            raise TimeoutError("descarga demasiado lenta (>%ds)" % limite)
+
+
 def fetch(url, accept="*/*", intentos=3):
     ultimo = None
     for i in range(intentos):
@@ -97,7 +114,7 @@ def fetch(url, accept="*/*", intentos=3):
                 "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
             })
             with _OPENER.open(req, timeout=TIMEOUT) as r:
-                return r.read()
+                return _leer(r, TIMEOUT * 2)
         except Exception as e:
             ultimo = e
             time.sleep(2 + 3 * i)
@@ -245,13 +262,14 @@ def observacion(puntos, por_zona=None):
         h = d.get("hourly", {})
         tiempos = h.get("time", [])
         lluvia = h.get("precipitation", [])
-        ahora_local = datetime.now(timezone.utc) + timedelta(hours=2)
+        # Hora de Madrid real (CET en invierno, CEST en verano), sin tz para comparar.
+        ahora_local = datetime.now(MADRID).replace(tzinfo=None)
         marca = ahora_local.strftime("%Y-%m-%dT%H:00")
         try:
             k = tiempos.index(marca)
         except ValueError:
             k = min(range(len(tiempos)), key=lambda j: abs(
-                (datetime.fromisoformat(tiempos[j]) - ahora_local.replace(tzinfo=None)).total_seconds()
+                (datetime.fromisoformat(tiempos[j]) - ahora_local).total_seconds()
             )) if tiempos else 0
 
         cur = d.get("current", {})
@@ -604,15 +622,22 @@ def main():
         obs = observacion(puntos, por_zona)
         anota("Open-Meteo (%d puntos)" % len(puntos), True)
     except Exception as e:
-        obs = []
-        anota("Open-Meteo", False, e)
-    # Si Open-Meteo no responde, mejor la ultima observacion (< 3 h) que un mapa vacio.
+        # Un 20 % de las corridas el handshake TLS se cuelga; un ultimo intento
+        # tras una pausa larga suele entrar.
+        time.sleep(20)
+        try:
+            obs = observacion(puntos, por_zona)
+            anota("Open-Meteo (%d puntos)" % len(puntos), True)
+        except Exception as e:
+            obs = []
+            anota("Open-Meteo", False, e)
+    # Si Open-Meteo no responde, mejor la ultima observacion (< 6 h) que un mapa vacio.
     obs_de = None
     if not obs:
         prev = cargar(os.path.join(DATA, "obs.json"), {})
         try:
             t = datetime.fromisoformat(prev.get("obs_de") or prev["updated"])
-            if prev.get("items") and ahora - t < timedelta(hours=3):
+            if prev.get("items") and ahora - t < timedelta(hours=6):
                 obs, obs_de = prev["items"], t.isoformat()
         except Exception:
             pass
